@@ -56,7 +56,6 @@
         },
 
         initialize: function () {
-            var self = this;
             var element = this.element;
 
             vm.initAsync().then(function (vm) {
@@ -88,56 +87,7 @@
                     api.cart.submitOrder();
                     nav.navigate('/pages/thankYou/thankYou.html');
                 });
-
-                self.setupQuantityListener(element);
             });
         },
-
-        setupQuantityListener: function(element) {
-            var currentQuantity;
-            var self = this;
-
-            element.attachEvent("onfocusin", function (e) {
-                var isQuantity = WinJS.Utilities.hasClass(e.srcElement, "quantity");
-                if (isQuantity) {
-                    currentQuantity = +e.srcElement.value;
-                }
-            });
-
-            var focusOut = function (e) {
-                var isQuantity = WinJS.Utilities.hasClass(e.srcElement, "quantity");
-                if (isQuantity) {
-                    var quantity = +e.srcElement.value;
-                    if (quantity != currentQuantity) {
-                        element.detachEvent("onfocusout", focusOut);
-                        var allQuantities = WinJS.Utilities.query(".quantity", element);
-                        var index = allQuantities.indexOf(e.srcElement);
-                        self.processQuantityChanged(index, quantity);
-                    }
-                }
-            };
-            element.attachEvent("onfocusout", focusOut);
-        },
-
-        processQuantityChanged: function (index, quantity) {
-            var self = this;
-            if (index >= 0 && index < api.cart.items().length) {
-                var item = api.cart.items()[index];
-                var action = quantity <= 0 ? 'remove' : 'updateQuantity';
-
-                var command = {
-                    action: action,
-                    item: item,
-                    index: index,
-                    newQuantity: quantity
-                };
-
-                api.cart.processCommandAsync(command).then(function () {
-                    // reload the cart
-                    self.initialize();
-                });
-            }
-        }
-
     });
 })();

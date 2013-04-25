@@ -15,7 +15,29 @@
 (function (WinJS) {
     "use strict";
     
+    function isInt(value) {
+        if ((parseFloat(value) == parseInt(value)) && !isNaN(value)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     WinJS.Namespace.define("Shopping.Binding", {
+        twoway: WinJS.Binding.initializer(function (source, sourceProps, dest, destProps) {
+            WinJS.Binding.defaultBind(source, sourceProps, dest, destProps);
+            dest.onchange = function () {
+                var d = dest[destProps[0]];
+                var s = source[sourceProps[0]];
+                if (isInt(s)) {
+                    var dVal = parseInt(d);
+                    if (s !== d) source[sourceProps[0]] = dVal;
+                } else {
+                    if (s !== d) source[sourceProps[0]] = d;
+                }
+            };
+        }),
+
         setSelectedIndex: WinJS.Binding.initializer(function (source, sourceProperties, dest, destProperties) {
             /// <summary>
             /// Handles binding for selectedIndex property of a select html element
