@@ -131,7 +131,7 @@
             }).then(function (data) {
                 return JSON.parse(data.responseText);
             }, function (error) {
-                WinJS.log(error.detail.message);
+                WinJS.log(error.responseText);
                 return cart;
             });
     }

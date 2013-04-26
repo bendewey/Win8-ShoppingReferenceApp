@@ -69,18 +69,28 @@
         element.innerHTML = "";
         
         var templateControl = this.options.itemTemplate.winControl;
+
+        var datasource = this._dataSource;
+        if (datasource instanceof Array) {
+            datasource = new WinJS.Binding.List(this._dataSource).dataSource;
+        }
+        var binding = datasource.createListBinding(this);
         
-        for (var d in this._dataSource) {
-            var data = this._dataSource[d];
+        while (true) {
+            var boundData = binding.next();
+            boundData._item = boundData._item || {};
+            var data = boundData._value || boundData._item.data;
+            if (data == null) break;
+            
             templateControl.render(data)
-                    .done(function (item) {
-                        if (item.children.length != 1) {
-                            throw "template for the SimpleList can only contain one child element.";
-                        }
-                        var child = item.children[0];
-                        element.appendChild(child);
-                        layoutManager.layout(child, data);
-                    });
+                .done(function(item) {
+                    if (item.children.length != 1) {
+                        throw "template for the SimpleList can only contain one child element.";
+                    }
+                    var child = item.children[0];
+                    element.appendChild(child);
+                    layoutManager.layout(child, data);
+                });
         }
     }
 
@@ -127,6 +137,11 @@
                 }
             },
 
+            // WinJS.Binding.List NotificationHandler events
+            countChanged: _refresh,
+            reload: _refresh,
+            removed: _refresh,
+            
             _refresh: _refresh,
         })
 

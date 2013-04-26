@@ -49,18 +49,25 @@
                 var self = this;
                 var cart = this.cart = api.cart;
                 
-                this.items = _.map(cart.items(), function(v, k) {
+                var items = _.map(cart.items(), function(v, k) {
                     var itemVm = new CartItemViewModel(v);
                     var initailizing = true;
                     itemVm.bind("Quantity", function (newValue) {
                         if (!initailizing) {
-                            itemVm.updateProperty("Total", itemVm.Total);
-                            self.processQuantityChanged(v, newValue);
+                            self.processQuantityChangedAsync(v, newValue).then(function () {
+                                // reload the totals
+                                var index = self.items.indexOf(itemVm);
+                                self.items.splice(index, 1);
+                                itemVm.updateProperty("Total", itemVm.Total);
+                                self.initializeTotals();
+                            });
+                            
                         }
                     });
                     initailizing = false;
                     return itemVm;
                 });
+                this.items = new WinJS.Binding.List(items);
 
                 this.initializeTotals();
                 if (cart.cart) {
@@ -82,8 +89,7 @@
                 this.total = this.cart.total();
             },
             
-            processQuantityChanged: function (item, quantity) {
-                var self = this;
+            processQuantityChangedAsync: function (item, quantity) {
                 var action = quantity <= 0 ? 'remove' : 'updateQuantity';
 
                 var command = {
@@ -92,10 +98,7 @@
                     newQuantity: quantity
                 };
 
-                api.cart.processCommandAsync(command).then(function () {
-                    // reload the totals
-                    self.initializeTotals();
-                });
+                return api.cart.processCommandAsync(command);
             }
 
         })

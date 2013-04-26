@@ -70,7 +70,7 @@
                 var cartItems = element.querySelector(".items").winControl;
                 cartItems.itemTemplate = element.querySelector('.itemTemplate');
                 cartItems.layoutManager = new OneItemPerColumnLayoutManager();
-                cartItems.itemDataSource = vm.items;
+                cartItems.itemDataSource = vm.items.dataSource;
 
                 var checkout = element.querySelector('.checkout');
                 checkout.addEventListener('click', function() {

@@ -195,7 +195,8 @@
 
         // create a eventAggregator event listener to update the cart label on the appbar
         var updateCartLabelCallback = function (e) {
-            if (e.type == Shopping.Api.eventAggregator.type.AddedToCart) {
+            if (e.type == Shopping.Api.eventAggregator.type.AddedToCart
+                || e.type == Shopping.Api.eventAggregator.type.RemovedFromCart) {
                 cart.label = cartLabel();
             }
         };
