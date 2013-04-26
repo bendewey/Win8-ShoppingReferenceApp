@@ -35,6 +35,7 @@
     WinJS.Namespace.define("Shopping.ViewModel", {
 
         CartViewModel : WinJS.Class.define(function CartViewModel_ctor() {
+            this._initObservable();
 
             this.username = '';
 
@@ -42,7 +43,6 @@
             this.appId = "";
 
             this.canSignout = false;
-            this._initObservable(this);
         }, {
 
             initAsync: function () {
@@ -76,10 +76,10 @@
             },
             
             initializeTotals : function() {
-                this.updateProperty("subTotal", this.cart.subtotal());
-                this.updateProperty("tax", this.cart.tax());
-                this.updateProperty("shipping", this.cart.shipping());
-                this.updateProperty("total", this.cart.total());
+                this.subTotal = this.cart.subtotal();
+                this.tax = this.cart.tax();
+                this.shipping = this.cart.shipping();
+                this.total = this.cart.total();
             },
             
             processQuantityChanged: function (item, quantity) {
@@ -101,6 +101,8 @@
         })
     });
 
-    WinJS.Class.mix(Shopping.ViewModel.CartViewModel, WinJS.Binding.mixin);
+    WinJS.Class.mix(Shopping.ViewModel.CartViewModel,
+        WinJS.Binding.mixin,
+        WinJS.Binding.expandProperties({ subTotal: 0.0, shipping: 0.0, tax: 0.0, total: 0.0 }));
 
 })(WinJS, Shopping.Api);
