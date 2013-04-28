@@ -14,6 +14,7 @@
 
 (function (WinJS) {
     "use strict";
+    var disabledClassName = "mvvm-disabled";
     
     function isInt(value) {
         if ((parseFloat(value) == parseInt(value)) && !isNaN(value)) {
@@ -37,6 +38,53 @@
                 }
             };
         }),
+
+        command: WinJS.Binding.initializer(function (source, sourceProps, dest, destProps) {
+            //sourceProps.push("execute");
+            var eventSource = dest;
+            var command = source;
+            var sourceItems = destProps.length;
+            var destItems = sourceProps.length;
+            for (var i = 0; i < sourceItems - 1; i++) {
+                eventSource = eventSource[destProps[i]];
+            }
+            for (var x = 0; x < destItems ; x++) {
+                command = command[sourceProps[x]];
+            }
+
+            //Subscribes the event
+            eventSource[destProps[sourceItems - 1]] = function () {
+                if (!WinJS.Utilities.hasClass(disabledClassName)) {
+                    command["execute"].call(source, dest);
+                }
+            };
+
+            //monitors canExecute
+            command["canExecute"].bind("value", function (isEnabled) {
+                var sourceType = eventSource.tagName.toLowerCase();
+                if (isEnabled) {
+                    WinJS.Utilities.removeClass(eventSource, disabledClassName);
+                } else {
+                    WinJS.Utilities.addClass(eventSource, disabledClassName);
+                }
+
+                if (sourceType == "button") {
+                    eventSource.disabled = !isEnabled;
+                }
+
+            });
+        }),
+        
+        RelayCommand : WinJS.Class.define(function(execute) {
+            this.execute = execute;
+            this.execute.supportedForProcessing = true;
+            this.canExecute = WinJS.Binding.as({value:true});
+        },
+        {
+            execute: null,
+            canExecute: null
+        }),
+
 
         setSelectedIndex: WinJS.Binding.initializer(function (source, sourceProperties, dest, destProperties) {
             /// <summary>

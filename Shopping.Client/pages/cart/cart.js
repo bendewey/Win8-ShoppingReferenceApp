@@ -81,12 +81,6 @@
                 continueShopping.addEventListener('click', function () {
                     nav.navigate('/pages/home/home.html');
                 });
-
-                var submitOrder = element.querySelector('.submitOrder');
-                submitOrder.addEventListener('click', function () {
-                    api.cart.submitOrder();
-                    nav.navigate('/pages/thankYou/thankYou.html');
-                });
             });
         },
     });

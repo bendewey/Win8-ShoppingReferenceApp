@@ -15,7 +15,7 @@
 /// <reference path="ms-appx://Microsoft.WinJS.1.0/js/base.js" />
 /// <reference path="/js/api.js" />
 
-(function (WinJS, api) {
+(function (WinJS, nav, api) {
     "use strict";
 
     var CartItemViewModel = WinJS.Binding.define({
@@ -43,6 +43,8 @@
             this.appId = "";
 
             this.canSignout = false;
+
+            this.submitOrderCommand = new Shopping.Binding.RelayCommand(this.submitOrder);
         }, {
 
             initAsync: function () {
@@ -99,8 +101,12 @@
                 };
 
                 return api.cart.processCommandAsync(command);
+            },
+            
+            submitOrder: function() {
+                api.cart.submitOrder();
+                nav.navigate('/pages/thankYou/thankYou.html');
             }
-
         })
     });
 
@@ -108,4 +114,4 @@
         WinJS.Binding.mixin,
         WinJS.Binding.expandProperties({ subTotal: 0.0, shipping: 0.0, tax: 0.0, total: 0.0 }));
 
-})(WinJS, Shopping.Api);
+})(WinJS, WinJS.Navigation, Shopping.Api);
