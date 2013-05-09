@@ -17,8 +17,7 @@
 (function servicesInit(WinJS, WL) {
     "use strict";
     
-   var apiUrl = 'http://localhost:2139/api';
-   //var apiUrl = 'http://ecommerce13.cloudapp.net:2139/api';
+    var apiUri = 'http://localhost:2139/api';
 
     var liveIdInfo;
     
@@ -135,8 +134,6 @@
                 return cart;
             });
     }
-
-    var apiUri = 'http://localhost:2139/api';
 
     var services =
     {
