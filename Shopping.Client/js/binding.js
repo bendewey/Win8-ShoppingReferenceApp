@@ -42,7 +42,6 @@
         twoway: WinJS.Binding.initializer(function (source, sourceProps, dest, destProps) {
             WinJS.Binding.defaultBind(source, sourceProps, dest, destProps);
             dest.onchange = function () {
-                // leverage the oneTime binding in the reverse direction
                 // oneTime binding doesn't support int values, so wrap it if needed.
                 var value = getValue(dest, destProps);
                 if (isInt(value)) {
@@ -50,6 +49,7 @@
                     destProps = ["value"];
                 }
 
+                // leverage the oneTime binding in the reverse direction
                 WinJS.Binding.oneTime(dest, destProps, source, sourceProps);
             };
         }),
@@ -101,23 +101,34 @@
         }),
 
 
-        setSelectedIndex: WinJS.Binding.initializer(function (source, sourceProperties, dest, destProperties) {
+        twoWaySelectedIndex: WinJS.Binding.initializer(function (source, sourceProperties, dest, destProperties) {
             /// <summary>
             /// Handles binding for selectedIndex property of a select html element
             /// </summary>
 
-            var newDest = {};
-            WinJS.Binding.defaultBind(source, sourceProperties, newDest, destProperties);
+            // setup a placeholder to recieve values
+            var newDest = WinJS.Binding.as({ value:'' });
+            var newDestProps = ["value"];
+            WinJS.Binding.defaultBind(source, sourceProperties, newDest, newDestProps);
 
-            var selectedIndex = -1;
-            _.each(dest.options, function (v, k) {
-                if (v.value == newDest.value) {
-                    selectedIndex = k;
-                }
-            });
+            function updateSelectedIndex(newValue) {
+                var selectedIndex = -1;
+                _.each(dest.options, function (v, k) {
+                    if (v.value == newDest.value) {
+                        selectedIndex = k;
+                    }
+                });
 
-            dest.selectedIndex = selectedIndex;
-            return;
+                dest.selectedIndex = selectedIndex;
+            }
+            newDest.bind('value', updateSelectedIndex);
+            
+            dest.onchange = function () {
+                var updateSource = { value: dest.options[dest.selectedIndex].value };
+
+                // leverage the oneTime binding in the reverse direction
+                WinJS.Binding.oneTime(updateSource, newDestProps, source, sourceProperties);
+            };
         }),
 
         visibilityConverter: WinJS.Binding.converter(function (val) {

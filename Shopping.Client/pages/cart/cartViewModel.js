@@ -13,6 +13,7 @@
 
 
 /// <reference path="ms-appx://Microsoft.WinJS.1.0/js/base.js" />
+/// <reference path="/js/binding.js" />
 /// <reference path="/js/api.js" />
 
 (function (WinJS, nav, api) {

@@ -57,27 +57,27 @@
                 <legend>Bill To </legend>
                 <label class="field-first">First Name </label>
                 <label class="field-last">Last Name </label>
-                <input type="text" id="billing_first_name" data-win-bind="value: BillingAddress.FirstName oneTime" />
+                <input type="text" id="billing_first_name" data-win-bind="value: BillingAddress.FirstName Shopping.Binding.twoway" />
 
-                <input type="text" id="billing_last_name" data-win-bind="value: BillingAddress.LastName oneTime" />
+                <input type="text" id="billing_last_name" data-win-bind="value: BillingAddress.LastName Shopping.Binding.twoway" />
                 <label class="field-address">
                     Address line 1
                 </label>
                 <input type="text" id="billing_line1"
-                    data-win-bind="value: BillingAddress.Line1 oneTime" />
+                    data-win-bind="value: BillingAddress.Line1 Shopping.Binding.twoway" />
                 <label class="field-address">
                     Address line 2
                 </label>
                 <input type="text" id="billing_line2"
-                    data-win-bind="value: BillingAddress.Line2 oneTime" />
+                    data-win-bind="value: BillingAddress.Line2 Shopping.Binding.twoway" />
                 <label class="field-city">City </label>
                 <label class="field-state">
                     State
                 </label>
                 <label class="field-zip">Zip Code </label>
-                <input type="text" id="billing_city" data-win-bind="value: BillingAddress.City oneTime" />
+                <input type="text" id="billing_city" data-win-bind="value: BillingAddress.City Shopping.Binding.twoway" />
 
-                <select id="billing_state" data-win-bind="value: BillingAddress.State Shopping.Binding.setSelectedIndex">
+                <select id="billing_state" data-win-bind="value: BillingAddress.State Shopping.Binding.twoWaySelectedIndex">
                     <option>AL</option>
                     <option>AK</option>
                     <option>AR</option>
@@ -131,32 +131,32 @@
                     <option>WY</option>
                 </select>
 
-                <input type="text" id="billing_zip" data-win-bind="value: BillingAddress.Zip" /><br
+                <input type="text" id="billing_zip" data-win-bind="value: BillingAddress.Zip Shopping.Binding.twoway" /><br
                     style="clear: left;" />
             </fieldset>
 
             <fieldset class="shippingAddress">
                 <legend>Ship To </legend>
 
-                <input type="checkbox" id="same_addresses" data-win-bind="checked: SameAddresses" />
+                <input type="checkbox" id="same_addresses" data-win-bind="checked: SameAddresses Shopping.Binding.twoway" />
                 <label for="same_addresses">Same as billing address</label>
 
                 <label class="field-first">First Name</label>
                 <label class="field-last">Last Name</label>
-                <input type="text" id="shipping_first_name" data-win-bind="value: ShippingAddress.FirstName oneTime" />
-                <input type="text" id="shipping_last_name" data-win-bind="value: ShippingAddress.LastName oneTime" />
+                <input type="text" id="shipping_first_name" data-win-bind="value: ShippingAddress.FirstName Shopping.Binding.twoway" />
+                <input type="text" id="shipping_last_name" data-win-bind="value: ShippingAddress.LastName Shopping.Binding.twoway" />
                 <label class="field-address">
                     Address line 1</label>
-                <input type="text" id="shipping_line1" data-win-bind="value: ShippingAddress.Line1" />
+                <input type="text" id="shipping_line1" data-win-bind="value: ShippingAddress.Line1 Shopping.Binding.twoway" />
                 <label class="field-address">
                     Address line 2</label>
-                <input type="text" id="shipping_line2" data-win-bind="value: ShippingAddress.Line2" />
+                <input type="text" id="shipping_line2" data-win-bind="value: ShippingAddress.Line2 Shopping.Binding.twoway" />
                 <label class="field-city">City</label><label class="field-state">
                     State</label>
                 <label class="field-zip">Zip Code</label>
-                <input type="text" id="shipping_city" data-win-bind="value: ShippingAddress.City" />
+                <input type="text" id="shipping_city" data-win-bind="value: ShippingAddress.City Shopping.Binding.twoway" />
 
-                <select id="shipping_state" data-win-bind="value: ShippingAddress.State Shopping.Binding.setSelectedIndex">
+                <select id="shipping_state" data-win-bind="value: ShippingAddress.State Shopping.Binding.twoWaySelectedIndex">
                     <option>AL</option>
                     <option>AK</option>
                     <option>AR</option>
@@ -210,7 +210,7 @@
                     <option>WY</option>
                 </select>
 
-                <input type="text" id="shipping_zip" data-win-bind="value: ShippingAddress.Zip" />
+                <input type="text" id="shipping_zip" data-win-bind="value: ShippingAddress.Zip Shopping.Binding.twoway" />
                 <br style="clear: left;" />
             </fieldset>
             <div class="payment">
@@ -220,12 +220,12 @@
                         Card Number
                         <br />
                         <span>(This is a demo, enter random numbers)</span></label>
-                    <input type="text" id="card_number" data-win-bind="value: PaymentInfo.CardNumber">
+                    <input type="text" id="card_number" data-win-bind="value: PaymentInfo.CardNumber Shopping.Binding.twoway">
                     <div id="dumb">
                         <label class="type" for="card_type">
                             Card Type
                         </label>
-                        <select id="card_type" data-win-bind="value: PaymentInfo.CardType Shopping.Binding.setSelectedIndex">
+                        <select id="card_type" data-win-bind="value: PaymentInfo.CardType Shopping.Binding.twoWaySelectedIndex">
 
                             <option value="Visa">Visa</option>
                             <option value="MC">Mastercard</option>
@@ -238,10 +238,10 @@
 
                     <label class="CVV" for="card_cvv">
                         C.V.V.</label>
-                    <input type="text" id="card_cvv" data-win-bind="value: PaymentInfo.CvvCode">
+                    <input type="text" id="card_cvv" data-win-bind="value: PaymentInfo.CvvCode Shopping.Binding.twoway">
                     <label class="expires">
                         Expires</label>
-                    <select id="card_month" class="month" data-win-bind="value: PaymentInfo.ExpirationMonth Shopping.Binding.setSelectedIndex">
+                    <select id="card_month" class="month" data-win-bind="value: PaymentInfo.ExpirationMonth Shopping.Binding.twoWaySelectedIndex">
                         <option value="1">01</option>
                         <option value="2">02</option>
                         <option value="3">03</option>
@@ -256,7 +256,7 @@
                         <option value="12">12</option>
                     </select>
 
-                    <select id="card_year" class="year" data-win-bind="value: PaymentInfo.ExpirationYear Shopping.Binding.setSelectedIndex">
+                    <select id="card_year" class="year" data-win-bind="value: PaymentInfo.ExpirationYear Shopping.Binding.twoWaySelectedIndex">
                         <option value="2013">2013</option>
                         <option value="2014">2014</option>
                         <option value="2015">2015</option>
@@ -266,13 +266,13 @@
 
                 </fieldset>
                 <div class="terms">
-                    <input type="checkbox" id="terms" data-win-bind="checked: Terms" /><label for="terms">
+                    <input type="checkbox" id="terms" data-win-bind="checked: Terms Shopping.Binding.twoway" /><label for="terms">
                         I agree to the terms and conditions</label>
                 </div>
 
-                <button class="continue">Continue</button>
+                <button class="continue" data-win-bind="onclick:continueCommand Shopping.Binding.command">Continue</button>
                 <br />
-                <button class="demo">Demo Data</button>
+                <button class="demo" data-win-bind="onclick:demoDataCommand Shopping.Binding.command">Demo Data</button>
 
             </div>
 
