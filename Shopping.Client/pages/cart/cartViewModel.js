@@ -57,9 +57,12 @@
                     itemVm.bind("Quantity", function (newValue) {
                         if (!initailizing) {
                             self.processQuantityChangedAsync(v, newValue).then(function () {
+                                if (newValue == 0) {
+                                    // remove the item
+                                    var index = self.items.indexOf(itemVm);
+                                    self.items.splice(index, 1);
+                                }
                                 // reload the totals
-                                var index = self.items.indexOf(itemVm);
-                                self.items.splice(index, 1);
                                 itemVm.updateProperty("Total", itemVm.Total);
                                 self.initializeTotals();
                             });
