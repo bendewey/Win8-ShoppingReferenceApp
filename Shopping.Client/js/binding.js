@@ -12,7 +12,7 @@
 //*************************************************************************
 
 
-(function (WinJS) {
+(function (WinJS, global) {
     "use strict";
     var disabledClassName = "mvvm-disabled";
     
@@ -23,19 +23,34 @@
             return false;
         }
     }
+    
+    // taken from base.js as their is no way to get 
+    var requireSupportedForProcessing = WinJS.Utilities.requireSupportedForProcessing;
+    function getValue(obj, path) {
+        if (obj !== global) {
+            obj = requireSupportedForProcessing(obj);
+        }
+        if (path) {
+            for (var i = 0, len = path.length; i < len && (obj !== null && obj !== undefined); i++) {
+                obj = requireSupportedForProcessing(obj[path[i]]);
+            }
+        }
+        return obj;
+    }
 
     WinJS.Namespace.define("Shopping.Binding", {
         twoway: WinJS.Binding.initializer(function (source, sourceProps, dest, destProps) {
             WinJS.Binding.defaultBind(source, sourceProps, dest, destProps);
             dest.onchange = function () {
-                var d = dest[destProps[0]];
-                var s = source[sourceProps[0]];
-                if (isInt(s)) {
-                    var dVal = parseInt(d);
-                    if (s !== d) source[sourceProps[0]] = dVal;
-                } else {
-                    if (s !== d) source[sourceProps[0]] = d;
+                // leverage the oneTime binding in the reverse direction
+                // oneTime binding doesn't support int values, so wrap it if needed.
+                var value = getValue(dest, destProps);
+                if (isInt(value)) {
+                    dest = { value: parseInt(value) };
+                    destProps = ["value"];
                 }
+
+                WinJS.Binding.oneTime(dest, destProps, source, sourceProps);
             };
         }),
 
@@ -172,4 +187,4 @@
         })
     });
     
-})(WinJS);
+})(WinJS, this);
