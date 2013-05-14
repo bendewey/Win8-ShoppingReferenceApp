@@ -124,7 +124,8 @@
                     </div>
                 </div>
                 <button class="checkout">Checkout</button>
-                <button class="submitOrder">Submit Order</button>
+                <button class="submitOrder"
+                    data-win-bind="onclick:submitOrderCommand Shopping.Binding.command">Submit Order</button>
                 <button class="continue">Continue Shopping</button>
             </div>
 
@@ -133,8 +134,8 @@
                     <hgroup>
                         <h2 data-win-bind="textContent: Name"></h2>
                         <h3>$<span data-win-bind="textContent: Price"></span> x
-                            <input type="text" class="quantity" data-win-bind="value: Quantity" />
-                            = $<span data-win-bind="textContent: this Shopping.ViewModel.TotalItemPriceConverter"></span></h3>
+                            <input type="text" class="quantity" data-win-bind="value: Quantity Shopping.Binding.twoway" />
+                            = $<span data-win-bind="textContent: Total"></span></h3>
                     </hgroup>
                     <div class="itemImage">
                         <img data-win-bind="src: MainImage; alt: Name" />

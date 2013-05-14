@@ -13,19 +13,30 @@
 
 
 /// <reference path="ms-appx://Microsoft.WinJS.1.0/js/base.js" />
+/// <reference path="/js/binding.js" />
 /// <reference path="/js/api.js" />
 
-(function (WinJS) {
+(function (WinJS, nav, api) {
     "use strict";
-    
-    function totalItemPriceConverter(item) {
-        return item.Price * item.Quantity;
-    }
+
+    var CartItemViewModel = WinJS.Binding.define({
+        
+        Price: 0.0,
+        Quantity: 0,
+        Size: "",
+        Color: "",
+        MainImage: "",
+        Name: ""
+    });
+
+    Object.defineProperty(CartItemViewModel.prototype, "Total", {
+        get: function () { return this.Price * this.Quantity; }
+    });
 
     WinJS.Namespace.define("Shopping.ViewModel", {
-        TotalItemPriceConverter : WinJS.Binding.converter(totalItemPriceConverter),    
 
         CartViewModel : WinJS.Class.define(function CartViewModel_ctor() {
+            this._initObservable();
 
             this.username = '';
 
@@ -34,31 +45,77 @@
 
             this.canSignout = false;
 
+            this.submitOrderCommand = new Shopping.Binding.RelayCommand(this.submitOrder);
         }, {
 
             initAsync: function () {
                 var self = this;
-
-                var cart = Shopping.Api.cart;
-
-                self.items = cart.items();
-                self.subTotal = cart.subtotal();
-                self.tax = cart.tax();
-                self.shipping = cart.shipping();
-                self.total = cart.total();
-                if (cart.cart) {
-                    self.HasAddresses = cart.cart.BillingAddress.Line1 && Shopping.Api.cart.cart.BillingAddress.Line1 != "";
-                    self.HasPayment = cart.cart.PaymentInfo.CardType && Shopping.Api.cart.cart.PaymentInfo.CardType != "";
-                    self.BillingAddress = cart.cart.BillingAddress;
-                    self.ShippingAddress = cart.cart.ShippingAddress;
-                    self.PaymentInfo = cart.cart.PaymentInfo;
-                    self.SameAddresses = cart.cart.SameAddresses;
-                }
+                var cart = this.cart = api.cart;
                 
-                return WinJS.Promise.as(self);
-            }
+                var items = _.map(cart.items(), function(v, k) {
+                    var itemVm = new CartItemViewModel(v);
+                    var initailizing = true;
+                    itemVm.bind("Quantity", function (newValue) {
+                        if (!initailizing) {
+                            self.processQuantityChangedAsync(v, newValue).then(function () {
+                                if (newValue == 0) {
+                                    // remove the item
+                                    var index = self.items.indexOf(itemVm);
+                                    self.items.splice(index, 1);
+                                }
+                                // reload the totals
+                                itemVm.updateProperty("Total", itemVm.Total);
+                                self.initializeTotals();
+                            });
+                            
+                        }
+                    });
+                    initailizing = false;
+                    return itemVm;
+                });
+                this.items = new WinJS.Binding.List(items);
 
+                this.initializeTotals();
+                if (cart.cart) {
+                    this.HasAddresses = cart.cart.BillingAddress.Line1 && Shopping.Api.cart.cart.BillingAddress.Line1 != "";
+                    this.HasPayment = cart.cart.PaymentInfo.CardType && Shopping.Api.cart.cart.PaymentInfo.CardType != "";
+                    this.BillingAddress = cart.cart.BillingAddress;
+                    this.ShippingAddress = cart.cart.ShippingAddress;
+                    this.PaymentInfo = cart.cart.PaymentInfo;
+                    this.SameAddresses = cart.cart.SameAddresses;
+                }
+
+                return WinJS.Promise.as(this);
+            },
+            
+            initializeTotals : function() {
+                this.subTotal = this.cart.subtotal();
+                this.tax = this.cart.tax();
+                this.shipping = this.cart.shipping();
+                this.total = this.cart.total();
+            },
+            
+            processQuantityChangedAsync: function (item, quantity) {
+                var action = quantity <= 0 ? 'remove' : 'updateQuantity';
+
+                var command = {
+                    action: action,
+                    item: item,
+                    newQuantity: quantity
+                };
+
+                return api.cart.processCommandAsync(command);
+            },
+            
+            submitOrder: function() {
+                api.cart.submitOrder();
+                nav.navigate('/pages/thankYou/thankYou.html');
+            }
         })
     });
-    
-})(WinJS);
+
+    WinJS.Class.mix(Shopping.ViewModel.CartViewModel,
+        WinJS.Binding.mixin,
+        WinJS.Binding.expandProperties({ subTotal: 0.0, shipping: 0.0, tax: 0.0, total: 0.0 }));
+
+})(WinJS, WinJS.Navigation, Shopping.Api);

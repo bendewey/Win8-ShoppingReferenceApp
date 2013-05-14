@@ -12,27 +12,123 @@
 //*************************************************************************
 
 
-(function (WinJS) {
+(function (WinJS, global) {
     "use strict";
+    var disabledClassName = "mvvm-disabled";
     
+    function isInt(value) {
+        if ((parseFloat(value) == parseInt(value)) && !isNaN(value)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    
+    // taken from base.js as their is no way to get 
+    var requireSupportedForProcessing = WinJS.Utilities.requireSupportedForProcessing;
+    function getValue(obj, path) {
+        if (obj !== global) {
+            obj = requireSupportedForProcessing(obj);
+        }
+        if (path) {
+            for (var i = 0, len = path.length; i < len && (obj !== null && obj !== undefined); i++) {
+                obj = requireSupportedForProcessing(obj[path[i]]);
+            }
+        }
+        return obj;
+    }
+
     WinJS.Namespace.define("Shopping.Binding", {
-        setSelectedIndex: WinJS.Binding.initializer(function (source, sourceProperties, dest, destProperties) {
+        twoway: WinJS.Binding.initializer(function (source, sourceProps, dest, destProps) {
+            WinJS.Binding.defaultBind(source, sourceProps, dest, destProps);
+            dest.onchange = function () {
+                // oneTime binding doesn't support int values, so wrap it if needed.
+                var value = getValue(dest, destProps);
+                if (isInt(value)) {
+                    dest = { value: parseInt(value) };
+                    destProps = ["value"];
+                }
+
+                // leverage the oneTime binding in the reverse direction
+                WinJS.Binding.oneTime(dest, destProps, source, sourceProps);
+            };
+        }),
+
+        command: WinJS.Binding.initializer(function (source, sourceProps, dest, destProps) {
+            //sourceProps.push("execute");
+            var eventSource = dest;
+            var command = source;
+            var sourceItems = destProps.length;
+            var destItems = sourceProps.length;
+            for (var i = 0; i < sourceItems - 1; i++) {
+                eventSource = eventSource[destProps[i]];
+            }
+            for (var x = 0; x < destItems ; x++) {
+                command = command[sourceProps[x]];
+            }
+
+            //Subscribes the event
+            eventSource[destProps[sourceItems - 1]] = function () {
+                if (!WinJS.Utilities.hasClass(disabledClassName)) {
+                    command["execute"].call(source, dest);
+                }
+            };
+
+            //monitors canExecute
+            command["canExecute"].bind("value", function (isEnabled) {
+                var sourceType = eventSource.tagName.toLowerCase();
+                if (isEnabled) {
+                    WinJS.Utilities.removeClass(eventSource, disabledClassName);
+                } else {
+                    WinJS.Utilities.addClass(eventSource, disabledClassName);
+                }
+
+                if (sourceType == "button") {
+                    eventSource.disabled = !isEnabled;
+                }
+
+            });
+        }),
+        
+        RelayCommand : WinJS.Class.define(function(execute) {
+            this.execute = execute;
+            this.execute.supportedForProcessing = true;
+            this.canExecute = WinJS.Binding.as({value:true});
+        },
+        {
+            execute: null,
+            canExecute: null
+        }),
+
+
+        twoWaySelectedIndex: WinJS.Binding.initializer(function (source, sourceProperties, dest, destProperties) {
             /// <summary>
             /// Handles binding for selectedIndex property of a select html element
             /// </summary>
 
-            var newDest = {};
-            WinJS.Binding.defaultBind(source, sourceProperties, newDest, destProperties);
+            // setup a placeholder to recieve values
+            var newDest = WinJS.Binding.as({ value:'' });
+            var newDestProps = ["value"];
+            WinJS.Binding.defaultBind(source, sourceProperties, newDest, newDestProps);
 
-            var selectedIndex = -1;
-            _.each(dest.options, function (v, k) {
-                if (v.value == newDest.value) {
-                    selectedIndex = k;
-                }
-            });
+            function updateSelectedIndex(newValue) {
+                var selectedIndex = -1;
+                _.each(dest.options, function (v, k) {
+                    if (v.value == newDest.value) {
+                        selectedIndex = k;
+                    }
+                });
 
-            dest.selectedIndex = selectedIndex;
-            return;
+                dest.selectedIndex = selectedIndex;
+            }
+            newDest.bind('value', updateSelectedIndex);
+            
+            dest.onchange = function () {
+                var updateSource = { value: dest.options[dest.selectedIndex].value };
+
+                // leverage the oneTime binding in the reverse direction
+                WinJS.Binding.oneTime(updateSource, newDestProps, source, sourceProperties);
+            };
         }),
 
         visibilityConverter: WinJS.Binding.converter(function (val) {
@@ -102,4 +198,4 @@
         })
     });
     
-})(WinJS);
+})(WinJS, this);

@@ -13,6 +13,7 @@
 
 
 /// <reference path="ms-appx://Microsoft.WinJS.1.0/js/base.js" />
+/// <reference path="/Scripts/underscore.js" />
 /// <reference path="/js/services.js" />
 /// <reference path="/js/offline_services.js" />
 
@@ -269,7 +270,7 @@
             var existing = _.find(this.cart.Items, function (i) {
                 return i.ProductId === command.productId
                     && i.Color == command.color
-                    && i.Size == command.size
+                    && i.Size == command.size;
             });
 
             if (existing) {
@@ -307,8 +308,14 @@
                 this.cart.Items = [];
             }
             else {
-                this.cart.Items.splice(command.index, 1);
+                var index = this.cart.Items.indexOf(command.item);
+                this.cart.Items.splice(index, 1);
             }
+
+            Shopping.Api.eventAggregator.publish({
+                type: Shopping.Api.eventAggregator.type.RemovedFromCart,
+                productId: command.item.ProductId
+            });            
         }
     });
 
@@ -319,6 +326,7 @@
         this._registeredCallbacks = [];
         this._type = {
             AddedToCart: 'AddedToCart',
+            RemovedFromCart: 'RemovedFromCart',
             Navigated: 'Navigated'
         };
     }, {
