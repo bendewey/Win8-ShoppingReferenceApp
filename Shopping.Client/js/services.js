@@ -42,7 +42,8 @@
         }
 
         var completed;
-        var promise = new WinJS.Promise(function (c) { completed = c; });
+        var error;
+        var promise = new WinJS.Promise(function (c, e) { completed = c; error = e });
 
         WL.Event.subscribe("auth.login", function onLoginComplete() {
             var session = WL.getSession();
@@ -59,8 +60,11 @@
         });
 
         WL.init();
+        
         WL.login({
             scope: ["wl.signin", "wl.basic", "wl.emails"],
+        }).then(null, function(e) {
+            error(e);
         });
 
         return promise;
@@ -98,6 +102,18 @@
         /// <summary>
         /// Gets a promise for creating a new cart.  This will be used when a user adds an item to a cart and no cart exists.
         /// </summary>
+        function createCart(initialCart) {
+            var cart = initialCart || {};
+            return WinJS.xhr({
+                type: 'post',
+                url: apiUri + '/cart',
+                headers: { "Content-type": "application/json" },
+                data: JSON.stringify(cart)
+            }).then(function (data) {
+                return JSON.parse(data.responseText);
+            });
+        }
+
         return getLiveIdAsync().then(function (liveIdInfo) {
             var cart = {
                 Email: liveIdInfo.emails.preferred,
@@ -107,14 +123,9 @@
                 }
             };
 
-            return WinJS.xhr({
-                type: 'post',
-                url: apiUri + '/cart',
-                headers: { "Content-type": "application/json" },
-                data: JSON.stringify(cart)
-            }).then(function(data) {
-                return JSON.parse(data.responseText);
-            });
+            return createCart(cart);
+        }, function(error) {
+            return createCart();
         });
     }
 
