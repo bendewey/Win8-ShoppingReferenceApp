@@ -41,7 +41,6 @@
     WinJS.Namespace.define("Shopping.ViewModel", {
         BillingEntryViewModel: WinJS.Class.define(function BillingEntryViewModel_ctor() {
             this._initObservable();
-            this.cart = api.cart.cart;
             
             this.continueCommand = new Shopping.Binding.RelayCommand(this.continue);
             this.demoDataCommand = new Shopping.Binding.RelayCommand(this.demoData);
@@ -49,6 +48,8 @@
         }, {
             init: function () {
                 var self = this;
+                this.cart = api.cart.cart || {};
+                
                 this.BillingAddress = new AddressViewModel(this.cart.BillingAddress);
                 this.ShippingAddress = new AddressViewModel(this.cart.ShippingAddress);
                 this.PaymentInfo = new PaymentViewModel(this.cart.PaymentInfo);
@@ -69,11 +70,12 @@
             
             demoData: function() {
 
-                var demoFirstName = this.cart.BillingAddress.FirstName;
+                var billingAddress = this.cart.BillingAddress || {};
+                var demoFirstName = billingAddress.FirstName;
                 if ((demoFirstName == null) || (demoFirstName == "")) {
                     demoFirstName = "Jane";
                 }
-                var demoLastName = this.cart.BillingAddress.LastName;
+                var demoLastName = billingAddress.LastName;
                 if ((demoLastName == null) || (demoLastName == "")) {
                     demoLastName = "Doe";
                 }
